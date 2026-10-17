@@ -4,6 +4,7 @@ import os from 'os';
 import { SessionSyncEngine } from './sessionSync.js';
 import { MetricsEngine } from './metrics.js';
 import { QuotaEngine } from './quota.js';
+import { ensureAllSlashCommands } from './setup.js';
 import { renderSessionHeader, renderFailoverBanner, colors } from './ui.js';
 
 export class ProcessRunner {
@@ -58,6 +59,9 @@ export class ProcessRunner {
       console.log(`Run ${colors.indigo}claude-pool status${colors.reset} or ${colors.indigo}claude-pool setup${colors.reset} to configure accounts.`);
       return;
     }
+
+    // Automatically ensure /limits, /pool, /switch are installed across all accounts and project
+    ensureAllSlashCommands(accounts);
 
     let resumeSessionId = null;
     for (let i = 0; i < extraArgs.length; i++) {

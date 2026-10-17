@@ -4,7 +4,7 @@ import { ConfigManager } from '../src/config.js';
 import { MetricsEngine } from '../src/metrics.js';
 import { QuotaEngine } from '../src/quota.js';
 import { ProcessRunner } from '../src/runner.js';
-import { runSetupWizard, checkAuthStatus, runAccountLogin } from '../src/setup.js';
+import { runSetupWizard, checkAuthStatus, runAccountLogin, ensureAllSlashCommands } from '../src/setup.js';
 import { colors, formatTokenCount, makePill, makeGauge, printTable } from '../src/ui.js';
 
 const KNOWN_COMMANDS = new Set([
@@ -35,6 +35,9 @@ const firstArg = args[0];
 const cfg = new ConfigManager();
 
 async function handleCommand() {
+  const accounts = cfg.loadAccounts();
+  ensureAllSlashCommands(accounts);
+
   if (!firstArg || (!firstArg.startsWith('-') && !KNOWN_COMMANDS.has(firstArg))) {
     // Default: run interactive session with failover
     const runner = new ProcessRunner(cfg);

@@ -64,24 +64,36 @@ export function installSlashCommands(configDir) {
     // /pool
     fs.writeFileSync(
       path.join(cmdDir, 'pool.md'),
-      '---\ndescription: View Claude Pool token dashboard and status\n---\nRun `claude-pool dashboard` using Bash and display the formatted output.\n',
+      '---\ndescription: View Claude Pool token dashboard and status\n---\nRun `npx -y claude-pool dashboard` (or `claude-pool dashboard`) using the command-line/Bash tool and display the exact formatted output.\n',
       'utf8'
     );
     // /limits
     fs.writeFileSync(
       path.join(cmdDir, 'limits.md'),
-      '---\ndescription: View remaining session and weekly quotas across all accounts in the pool\n---\nRun `claude-pool limits` using Bash and display the formatted output.\n',
+      '---\ndescription: View remaining session and weekly quotas across all accounts in the pool\n---\nRun `npx -y claude-pool limits` (or `claude-pool limits`) using the command-line/Bash tool and display the exact formatted output table.\n',
       'utf8'
     );
     // /switch
     fs.writeFileSync(
       path.join(cmdDir, 'switch.md'),
-      '---\ndescription: Switch active Claude account in the pool\n---\nRun `claude-pool switch $ARGUMENTS` using Bash and display the result.\nIf switched successfully, inform the user that their session was synchronized and they can run `/exit` to restart immediately on the new account.\n',
+      '---\ndescription: Switch active Claude account in the pool\n---\nRun `npx -y claude-pool switch $ARGUMENTS` (or `claude-pool switch $ARGUMENTS`) using the command-line/Bash tool and display the result.\nIf switched successfully, inform the user that their session was synchronized and they can run `/exit` to restart immediately on the new account.\n',
       'utf8'
     );
     // Also include /pool-limits and /pool-switch aliases
     fs.copyFileSync(path.join(cmdDir, 'limits.md'), path.join(cmdDir, 'pool-limits.md'));
     fs.copyFileSync(path.join(cmdDir, 'switch.md'), path.join(cmdDir, 'pool-switch.md'));
+  } catch {}
+}
+
+export function ensureAllSlashCommands(accounts = []) {
+  try {
+    installSlashCommands(path.join(os.homedir(), '.claude'));
+    for (const a of accounts) {
+      if (a && a.configDir) installSlashCommands(a.configDir);
+    }
+    // Also install to current working directory .claude if it exists or in project
+    const localClaudeDir = path.join(process.cwd(), '.claude');
+    installSlashCommands(localClaudeDir);
   } catch {}
 }
 
