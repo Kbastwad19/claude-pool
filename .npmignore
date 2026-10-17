@@ -1,0 +1,7 @@
+# Exclude Python files from the npm package
+claude_pool/
+pyproject.toml
+claude_pool.egg-info/
+tests/
+.git/
+.github/
