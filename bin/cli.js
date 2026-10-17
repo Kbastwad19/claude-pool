@@ -10,6 +10,8 @@ import { colors, formatTokenCount, makePill, makeGauge, printTable } from '../sr
 const KNOWN_COMMANDS = new Set([
   'start',
   'setup',
+  'switch',
+  'use',
   'limits',
   'remaining',
   'quota',
@@ -49,6 +51,55 @@ async function handleCommand() {
 
     case 'setup': {
       await runSetupWizard();
+      break;
+    }
+
+    case 'switch':
+    case 'use': {
+      let targetName = args[1];
+      const accounts = cfg.loadAccounts();
+
+      if (!targetName) {
+        console.log(`\n${colors.indigo}${colors.bold}Switch Active Claude Account:${colors.reset}\n`);
+        accounts.forEach((a, idx) => {
+          const activeTag = idx === 0 ? `${colors.emerald} [ACTIVE]${colors.reset}` : '';
+          const emailTag = a.email ? ` (${a.email})` : '';
+          console.log(`  ${colors.bold}${idx + 1})${colors.reset} ${a.name}${emailTag}${activeTag}`);
+        });
+        console.log();
+        const { default: readline } = await import('readline/promises');
+        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+        const choice = await rl.question(`Select account (1-${accounts.length}): `);
+        rl.close();
+        const chosenIdx = parseInt(choice.trim(), 10) - 1;
+        if (chosenIdx >= 0 && chosenIdx < accounts.length) {
+          targetName = accounts[chosenIdx].name;
+        } else {
+          console.log(`${colors.red}Invalid selection.${colors.reset}`);
+          return;
+        }
+      }
+
+      const prevActive = accounts[0];
+      const target = accounts.find(a => a.name.toLowerCase() === targetName.toLowerCase());
+      if (!target) {
+        console.log(`${colors.red}Error: Account '${targetName}' not found in pool.${colors.reset}`);
+        return;
+      }
+
+      target.rateLimitedUntil = null;
+      cfg.updateAccountPriority(target.name, 1);
+
+      if (prevActive && prevActive.name.toLowerCase() !== target.name.toLowerCase()) {
+        const { SessionSyncEngine } = await import('../src/sessionSync.js');
+        const syncedId = SessionSyncEngine.transferSession(prevActive, target);
+        if (syncedId) {
+          console.log(`${colors.emerald}✓ Synchronized active session (${syncedId.slice(0, 12)}...) to ${target.name}.${colors.reset}`);
+        }
+      }
+
+      console.log(`\n${colors.emerald}✓ Active account is now: ${colors.bold}${target.name} (Priority 1)${colors.reset}`);
+      console.log(`${colors.dim}Run ${colors.reset}${colors.indigo}claude-pool${colors.reset}${colors.dim} to start working on ${target.name}.${colors.reset}\n`);
       break;
     }
 
@@ -312,6 +363,7 @@ ${colors.bold}USAGE:${colors.reset}
 
 ${colors.bold}COMMANDS:${colors.reset}
   ${colors.indigo}claude-pool${colors.reset}                  Launch Claude session with pooled accounts & auto-failover
+  ${colors.indigo}claude-pool switch [acct]${colors.reset}    Manually switch active account (or interactive picker)
   ${colors.indigo}claude-pool setup${colors.reset}            Guided setup wizard to connect accounts from scratch
   ${colors.indigo}claude-pool limits${colors.reset}           Inspect remaining session/weekly % quota & reset timers
   ${colors.indigo}claude-pool dashboard${colors.reset}        Real-time aggregated token metrics & model stats

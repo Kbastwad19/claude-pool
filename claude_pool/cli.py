@@ -22,6 +22,8 @@ from claude_pool.ui import (
 KNOWN_COMMANDS = {
     "start",
     "setup",
+    "switch",
+    "use",
     "dashboard",
     "limits",
     "remaining",
@@ -57,6 +59,60 @@ def cli(ctx, account):
 def setup_cmd():
     """Run the guided setup wizard to connect multiple Claude subscriptions from scratch."""
     run_setup_wizard()
+
+
+@cli.command(name="switch")
+@click.argument("account_name", required=False, default=None)
+def switch_cmd(account_name: Optional[str]):
+    """Manually switch active account (or interactive picker)."""
+    mgr = AccountPoolManager()
+    accounts = mgr.accounts
+
+    if not account_name:
+        console.print(f"\n[bold {COLOR_PRIMARY}]Switch Active Claude Account:[/]\n")
+        for idx, a in enumerate(accounts, start=1):
+            active_tag = f" [{COLOR_SUCCESS}ACTIVE{COLOR_SUCCESS}]" if idx == 1 else ""
+            email_tag = f" ({a.email})" if a.email else ""
+            console.print(f"  [bold]{idx})[/] {a.name}{email_tag}{active_tag}")
+        console.print()
+        choice = input(f"Select account (1-{len(accounts)}): ").strip()
+        try:
+            chosen_idx = int(choice) - 1
+            if 0 <= chosen_idx < len(accounts):
+                account_name = accounts[chosen_idx].name
+            else:
+                console.print("[bold #ef4444]Invalid selection.[/]")
+                return
+        except ValueError:
+            console.print("[bold #ef4444]Invalid selection.[/]")
+            return
+
+    prev_active = accounts[0] if accounts else None
+    target = next((a for a in accounts if a.name.lower() == account_name.lower()), None)
+    if not target:
+        console.print(f"[bold #ef4444]Error: Account '{account_name}' not found in pool.[/]")
+        return
+
+    # Clear rate limit if manually switching
+    target.rate_limited_until = None
+    mgr.set_priority(target.name, 1)
+
+    # Sync latest session if available
+    if prev_active and prev_active.name.lower() != target.name.lower():
+        from claude_pool.session_sync import SessionSyncEngine
+        synced_id = SessionSyncEngine.transfer_session(prev_active, target)
+        if synced_id:
+            console.print(f"[{COLOR_SUCCESS}]✓ Synchronized active session ({synced_id[:12]}...) to {target.name}.[/]")
+
+    console.print(f"\n[{COLOR_SUCCESS}]✓ Active account is now: [bold white]{target.name} (Priority 1)[/bold white][/{COLOR_SUCCESS}]")
+    console.print(f"[dim]Run [bold cyan]claude-pool[/] to start working on {target.name}.[/dim]\n")
+
+
+@cli.command(name="use")
+@click.argument("account_name", required=False, default=None)
+def use_cmd(account_name: Optional[str]):
+    """Alias for 'switch': manually switch active account."""
+    switch_cmd.callback(account_name)
 
 
 @cli.command(name="start", context_settings=dict(ignore_unknown_options=True, allow_extra_args=True))
