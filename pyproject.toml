@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claude-pool"
+version = "0.1.0"
+description = "Multi-account token pooling and seamless failover manager for Claude Code CLI"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Kiran & Contributors" }
+]
+keywords = [
+    "claude",
+    "claude-code",
+    "anthropic",
+    "llm",
+    "developer-tools",
+    "token-pooling",
+    "multi-account",
+    "failover",
+    "terminal-ui"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Utilities"
+]
+dependencies = [
+    "click>=8.0.0",
+    "rich>=13.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Kbastwad19/claude-pool"
+Documentation = "https://github.com/Kbastwad19/claude-pool#readme"
+Repository = "https://github.com/Kbastwad19/claude-pool"
+Issues = "https://github.com/Kbastwad19/claude-pool/issues"
+
+[project.scripts]
+claude-pool = "claude_pool.cli:main"
