@@ -141,11 +141,11 @@ When an account reaches its 5-hour limit, `claude-pool` catches it and migrates 
 
 ## ⚡ In-Session Slash Commands
 
-You don't need to exit an active Claude session to check limits or switch accounts! `claude-pool setup` automatically installs custom slash commands into all configured accounts:
+You don't need to exit an active Claude session to check limits or switch accounts! `claude-pool` automatically configures unified slash commands across all your accounts:
 
-- **`/limits`** (or `/pool-limits`): Prints real-time remaining quota percentages and reset timers across all accounts right inside your chat transcript.
-- **`/pool`**: Displays the aggregated token usage dashboard.
-- **`/switch <account>`** (or `/pool-switch <account>`): Transfers your active session transcript and working directory to the target account. Type `/exit` to seamlessly relaunch on the newly switched account with 100% memory preserved!
+- **`/pool-limits`**: Prints real-time remaining 5-hour session & weekly quota percentages and reset timers across all accounts right inside your chat transcript.
+- **`/pool`**: Displays the aggregated token usage dashboard and active account status.
+- **`/pool-switch [account]`**: Automatically synchronizes your active conversation history to the target account and **instantly hot-restarts** Claude Code on the new account. No manual `/exit` needed! If no account name is given, it automatically rotates to the next standby account.
 
 ---
 

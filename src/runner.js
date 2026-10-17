@@ -80,8 +80,17 @@ export class ProcessRunner {
 
       renderSessionHeader(activeAccount, standbyAccounts, poolStats);
 
-      const cmdArgs = [...extraArgs];
-      if (resumeSessionId && !cmdArgs.includes('-r') && !cmdArgs.includes('--resume')) {
+      // Clean any previous -r/--resume so resumeSessionId is always accurate
+      const cleanArgs = [];
+      for (let i = 0; i < extraArgs.length; i++) {
+        if (extraArgs[i] === '-r' || extraArgs[i] === '--resume') {
+          i++; // skip old session id
+        } else {
+          cleanArgs.push(extraArgs[i]);
+        }
+      }
+      const cmdArgs = [...cleanArgs];
+      if (resumeSessionId) {
         cmdArgs.push('--resume', resumeSessionId);
       }
 

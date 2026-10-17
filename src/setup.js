@@ -61,27 +61,34 @@ export function installSlashCommands(configDir) {
   const cmdDir = path.join(configDir, 'commands');
   try {
     fs.mkdirSync(cmdDir, { recursive: true });
+
+    // Clean up duplicate/legacy command files so only consolidated pool-* commands exist
+    const obsoleteFiles = ['limits.md', 'switch.md'];
+    for (const file of obsoleteFiles) {
+      const fullPath = path.join(cmdDir, file);
+      if (fs.existsSync(fullPath)) {
+        try { fs.unlinkSync(fullPath); } catch {}
+      }
+    }
+
     // /pool
     fs.writeFileSync(
       path.join(cmdDir, 'pool.md'),
       '---\ndescription: View Claude Pool token dashboard and status\n---\nHere is the live Claude Pool token dashboard:\n!`claude-pool dashboard`\n',
       'utf8'
     );
-    // /limits
+    // /pool-limits
     fs.writeFileSync(
-      path.join(cmdDir, 'limits.md'),
+      path.join(cmdDir, 'pool-limits.md'),
       '---\ndescription: View remaining session and weekly quotas across all accounts in the pool\n---\nHere are the live Claude Pool quota metrics and limits:\n!`claude-pool limits`\n',
       'utf8'
     );
-    // /switch
+    // /pool-switch
     fs.writeFileSync(
-      path.join(cmdDir, 'switch.md'),
-      '---\ndescription: Switch active Claude account in the pool\n---\n!`claude-pool switch $ARGUMENTS`\n\nIf the switch was successful, inform the user their active session was synchronized and they can run `/exit` to restart immediately on the newly active account.\n',
+      path.join(cmdDir, 'pool-switch.md'),
+      '---\ndescription: Switch active Claude account in the pool\n---\n!`claude-pool switch $ARGUMENTS`\n',
       'utf8'
     );
-    // Also include /pool-limits and /pool-switch aliases
-    fs.copyFileSync(path.join(cmdDir, 'limits.md'), path.join(cmdDir, 'pool-limits.md'));
-    fs.copyFileSync(path.join(cmdDir, 'switch.md'), path.join(cmdDir, 'pool-switch.md'));
   } catch {}
 }
 

@@ -63,23 +63,34 @@ async function handleCommand() {
       const accounts = cfg.loadAccounts();
 
       if (!targetName) {
-        console.log(`\n${colors.indigo}${colors.bold}Switch Active Claude Account:${colors.reset}\n`);
-        accounts.forEach((a, idx) => {
-          const activeTag = idx === 0 ? `${colors.emerald} [ACTIVE]${colors.reset}` : '';
-          const emailTag = a.email ? ` (${a.email})` : '';
-          console.log(`  ${colors.bold}${idx + 1})${colors.reset} ${a.name}${emailTag}${activeTag}`);
-        });
-        console.log();
-        const { default: readline } = await import('readline/promises');
-        const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-        const choice = await rl.question(`Select account (1-${accounts.length}): `);
-        rl.close();
-        const chosenIdx = parseInt(choice.trim(), 10) - 1;
-        if (chosenIdx >= 0 && chosenIdx < accounts.length) {
-          targetName = accounts[chosenIdx].name;
+        if (!process.stdin.isTTY || process.env.CLAUDE_PID || process.env.CLAUDECODE) {
+          // Inside Claude session or non-interactive environment: auto-select next standby account
+          const nextStandby = accounts.slice(1).find(a => a.enabled !== false);
+          if (!nextStandby) {
+            console.log(`${colors.red}No other enabled standby accounts found in pool.${colors.reset}`);
+            return;
+          }
+          targetName = nextStandby.name;
+          console.log(`${colors.dim}No target account specified. Rotating to next standby: ${colors.bold}${targetName}${colors.reset}`);
         } else {
-          console.log(`${colors.red}Invalid selection.${colors.reset}`);
-          return;
+          console.log(`\n${colors.indigo}${colors.bold}Switch Active Claude Account:${colors.reset}\n`);
+          accounts.forEach((a, idx) => {
+            const activeTag = idx === 0 ? `${colors.emerald} [ACTIVE]${colors.reset}` : '';
+            const emailTag = a.email ? ` (${a.email})` : '';
+            console.log(`  ${colors.bold}${idx + 1})${colors.reset} ${a.name}${emailTag}${activeTag}`);
+          });
+          console.log();
+          const { default: readline } = await import('readline/promises');
+          const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+          const choice = await rl.question(`Select account (1-${accounts.length}): `);
+          rl.close();
+          const chosenIdx = parseInt(choice.trim(), 10) - 1;
+          if (chosenIdx >= 0 && chosenIdx < accounts.length) {
+            targetName = accounts[chosenIdx].name;
+          } else {
+            console.log(`${colors.red}Invalid selection.${colors.reset}`);
+            return;
+          }
         }
       }
 
@@ -101,8 +112,31 @@ async function handleCommand() {
         }
       }
 
-      console.log(`\n${colors.emerald}✓ Active account is now: ${colors.bold}${target.name} (Priority 1)${colors.reset}`);
-      console.log(`${colors.dim}Run ${colors.reset}${colors.indigo}claude-pool${colors.reset}${colors.dim} to start working on ${target.name}.${colors.reset}\n`);
+      const claudePid = process.env.CLAUDE_PID || (process.env.CLAUDECODE ? process.ppid : null);
+      if (claudePid && prevActive && prevActive.name.toLowerCase() !== target.name.toLowerCase()) {
+        console.log(`\n${colors.emerald}✓ Active account is now: ${colors.bold}${target.name} (Priority 1)${colors.reset}`);
+        console.log(`${colors.cyan}⚡ Auto-restarting Claude Code session on ${target.name}...${colors.reset}\n`);
+
+        const { spawn } = await import('child_process');
+        if (process.platform === 'win32') {
+          const killer = spawn(
+            'powershell.exe',
+            ['-NoProfile', '-Command', `Start-Sleep -Milliseconds 400; Stop-Process -Id ${claudePid} -Force`],
+            { detached: true, stdio: 'ignore' }
+          );
+          killer.unref();
+        } else {
+          const killer = spawn(
+            'sh',
+            ['-c', `sleep 0.4 && kill -TERM ${claudePid}`],
+            { detached: true, stdio: 'ignore' }
+          );
+          killer.unref();
+        }
+      } else {
+        console.log(`\n${colors.emerald}✓ Active account is now: ${colors.bold}${target.name} (Priority 1)${colors.reset}`);
+        console.log(`${colors.dim}Run ${colors.reset}${colors.indigo}claude-pool${colors.reset}${colors.dim} to start working on ${target.name}.${colors.reset}\n`);
+      }
       break;
     }
 

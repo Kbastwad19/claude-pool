@@ -1,6 +1,6 @@
 {
   "name": "claude-pool",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Multi-account token pooling and seamless failover manager for Claude Code CLI",
   "main": "bin/cli.js",
   "type": "module",
