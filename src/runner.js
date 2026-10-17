@@ -95,6 +95,18 @@ export class ProcessRunner {
         break;
       }
 
+      // Check if user manually switched account during the session (e.g. via /pool-switch)
+      const refreshedAccounts = this.configManager.loadAccounts();
+      const readyRefreshed = this.getReadyAccounts(refreshedAccounts);
+      if (readyRefreshed.length > 0 && readyRefreshed[0].name.toLowerCase() !== activeAccount.name.toLowerCase()) {
+        const newActive = readyRefreshed[0];
+        console.log(`\n${colors.emerald}✓ Account switch detected! Continuing session on ${newActive.name}...${colors.reset}\n`);
+        const latestId = SessionSyncEngine.getLatestSessionId(newActive);
+        if (latestId) resumeSessionId = latestId;
+        activeAccount = newActive;
+        continue;
+      }
+
       if (exitCode === 0) {
         console.log(`\n${colors.emerald}✓ Claude session finished normally.${colors.reset}`);
         break;

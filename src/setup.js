@@ -57,6 +57,28 @@ export function checkAuthStatus(configDir) {
   return { ok: false, email: null, plan: null };
 }
 
+export function installSlashCommands(configDir) {
+  const cmdDir = path.join(configDir, 'commands');
+  try {
+    fs.mkdirSync(cmdDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(cmdDir, 'pool.md'),
+      '---\ndescription: View Claude Pool token dashboard and status\n---\nRun `claude-pool dashboard` using Bash and display the formatted output.\n',
+      'utf8'
+    );
+    fs.writeFileSync(
+      path.join(cmdDir, 'pool-limits.md'),
+      '---\ndescription: View remaining session and weekly quotas across all accounts in the pool\n---\nRun `claude-pool limits` using Bash and display the formatted output.\n',
+      'utf8'
+    );
+    fs.writeFileSync(
+      path.join(cmdDir, 'pool-switch.md'),
+      '---\ndescription: Switch active Claude account in the pool\n---\nRun `claude-pool switch $ARGUMENTS` using Bash and display the result.\n',
+      'utf8'
+    );
+  } catch {}
+}
+
 export async function runSetupWizard() {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
@@ -159,6 +181,9 @@ export async function runSetupWizard() {
   rl.close();
 
   if (accounts.length > 0) {
+    for (const a of accounts) {
+      installSlashCommands(a.configDir);
+    }
     cfg.saveAccounts(accounts);
     console.log(`\n${colors.emerald}✓ Setup complete! Your Claude Pool is configured:${colors.reset}\n`);
 

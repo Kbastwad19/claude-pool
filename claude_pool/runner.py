@@ -101,6 +101,18 @@ class ProcessRunner:
                 console.print(f"[bold #ef4444]Error launching claude:[/] {e}")
                 break
 
+            # Check if user manually switched account during the session (e.g. via /pool-switch)
+            refreshed_accounts = self.pool_manager.config_manager.load_accounts()
+            ready_refreshed = [a for a in refreshed_accounts if a.is_ready]
+            if ready_refreshed and ready_refreshed[0].name.lower() != active_account.name.lower():
+                new_active = ready_refreshed[0]
+                console.print(f"\n[#10b981]✓ Account switch detected! Continuing session on {new_active.name}...[/#10b981]\n")
+                latest_id = SessionSyncEngine.get_latest_session_id(new_active)
+                if latest_id:
+                    resume_session_id = latest_id
+                active_account = new_active
+                continue
+
             # Check if user exited normally (exit code 0)
             if exit_code == 0:
                 console.print("\n[#10b981]✓ Claude session finished normally.[/#10b981]")
