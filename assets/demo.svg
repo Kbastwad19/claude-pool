@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 520" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#111116"/>
+      <stop offset="100%" stop-color="#0a0a0c"/>
+    </linearGradient>
+    <linearGradient id="hudBorder" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3f3f46"/>
+      <stop offset="50%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#3f3f46"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <style>
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      line-height: 20px;
+    }
+    .f-11 { font-size: 11px; }
+    .f-12 { font-size: 12px; }
+    .f-13 { font-size: 13px; }
+    .bold { font-weight: 600; }
+    
+    .c-bg { fill: #0e1015; }
+    .c-bar { fill: #16181f; }
+    .c-border { stroke: #262933; fill: none; }
+    .c-zinc { fill: #e4e4e7; }
+    .c-muted { fill: #a1a1aa; }
+    .c-dim { fill: #71717a; }
+    .c-accent { fill: #a5b4fc; }
+    .c-mint { fill: #6ee7b7; }
+    .c-ochre { fill: #fde047; }
+    .c-rose { fill: #fda4af; }
+    .c-cyan { fill: #7dd3fc; }
+
+    /* Keyframe Animations */
+    @keyframes typingText {
+      0%, 2% { width: 0; }
+      8%, 94% { width: 110px; }
+      98%, 100% { width: 0; }
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    @keyframes sceneFade {
+      0%, 93% { opacity: 1; }
+      97%, 100% { opacity: 0; }
+    }
+
+    @keyframes step1_Hud {
+      0%, 9% { opacity: 0; transform: translateY(6px); }
+      13%, 93% { opacity: 1; transform: translateY(0); }
+      97%, 100% { opacity: 0; }
+    }
+
+    @keyframes step2_Query {
+      0%, 24% { opacity: 0; transform: translateY(6px); }
+      28%, 93% { opacity: 1; transform: translateY(0); }
+      97%, 100% { opacity: 0; }
+    }
+
+    @keyframes step3_Limit {
+      0%, 45% { opacity: 0; transform: translateY(6px); }
+      49%, 93% { opacity: 1; transform: translateY(0); }
+      97%, 100% { opacity: 0; }
+    }
+
+    @keyframes step4_Failover {
+      0%, 54% { opacity: 0; transform: translateY(6px); }
+      58%, 93% { opacity: 1; transform: translateY(0); }
+      97%, 100% { opacity: 0; }
+    }
+
+    @keyframes step5_Resumed {
+      0%, 72% { opacity: 0; transform: translateY(6px); }
+      76%, 93% { opacity: 1; transform: translateY(0); }
+      97%, 100% { opacity: 0; }
+    }
+
+    .anim-scene { animation: sceneFade 14s infinite ease-in-out; }
+    .anim-hud { animation: step1_Hud 14s infinite ease-in-out; }
+    .anim-query { animation: step2_Query 14s infinite ease-in-out; }
+    .anim-limit { animation: step3_Limit 14s infinite ease-in-out; }
+    .anim-failover { animation: step4_Failover 14s infinite ease-in-out; }
+    .anim-resumed { animation: step5_Resumed 14s infinite ease-in-out; }
+    .anim-cursor { animation: blink 0.8s infinite; }
+  </style>
+
+  <!-- Window Container with Drop Shadow -->
+  <g filter="url(#shadow)">
+    <!-- Window Body -->
+    <rect x="20" y="20" width="800" height="480" rx="12" fill="url(#bgGrad)" stroke="#27272a" stroke-width="1.2"/>
+    
+    <!-- Titlebar -->
+    <path d="M 20 32 A 12 12 0 0 1 32 20 L 808 20 A 12 12 0 0 1 820 32 L 820 58 L 20 58 Z" fill="#18181b"/>
+    <line x1="20" y1="58" x2="820" y2="58" stroke="#27272a" stroke-width="1"/>
+    
+    <!-- macOS Traffic Light Buttons -->
+    <circle cx="42" cy="39" r="6" fill="#ef4444" opacity="0.85"/>
+    <circle cx="62" cy="39" r="6" fill="#f59e0b" opacity="0.85"/>
+    <circle cx="82" cy="39" r="6" fill="#10b981" opacity="0.85"/>
+
+    <!-- Window Title -->
+    <text x="420" y="43" text-anchor="middle" class="mono f-12 bold c-dim">claude-pool — auto-failover &amp; memory sync</text>
+  </g>
+
+  <!-- Terminal Content Area -->
+  <g class="mono anim-scene">
+    
+    <!-- Initial Prompt & Typed Command -->
+    <g transform="translate(50, 92)">
+      <text x="0" y="0" class="c-mint bold">developer@workstation</text>
+      <text x="180" y="0" class="c-dim">:</text>
+      <text x="190" y="0" class="c-cyan">~/projects/api</text>
+      <text x="310" y="0" class="c-dim">$</text>
+      <text x="328" y="0" class="c-zinc bold">claude-pool</text>
+    </g>
+
+    <!-- Step 1: Launch HUD Card -->
+    <g class="anim-hud" transform="translate(50, 114)">
+      <!-- HUD Card Panel -->
+      <rect x="0" y="0" width="740" height="88" rx="8" fill="#121318" stroke="#2e303b" stroke-width="1.2"/>
+      
+      <!-- Card Header Tag -->
+      <path d="M 0 8 A 8 8 0 0 1 8 0 L 120 0 L 120 22 L 0 22 Z" fill="#1e2029"/>
+      <text x="12" y="15" class="f-11 bold c-accent">claude-pool</text>
+      
+      <!-- HUD Items -->
+      <g transform="translate(20, 38)">
+        <circle cx="4" cy="-4" r="4" fill="#6ee7b7"/>
+        <text x="18" y="0" class="bold c-zinc">active</text>
+        <text x="80" y="0" class="c-zinc">primary</text>
+        <text x="140" y="0" class="c-dim">(P1)</text>
+        <text x="175" y="0" class="c-dim">·</text>
+        <text x="190" y="0" class="c-mint bold">97% session left</text>
+        <text x="315" y="0" class="c-dim">(resets in 4h 12m)</text>
+      </g>
+
+      <g transform="translate(20, 60)">
+        <circle cx="4" cy="-4" r="3.5" fill="none" stroke="#71717a" stroke-width="1.2"/>
+        <text x="18" y="0" class="c-dim">standby</text>
+        <text x="80" y="0" class="c-muted">account4 (P2), backup (P3)</text>
+      </g>
+
+      <g transform="translate(20, 78)">
+        <text x="2" y="-4" class="f-11 c-accent">◌</text>
+        <text x="18" y="-3" class="c-dim">pool</text>
+        <text x="80" y="-3" class="c-muted">193.4M tokens today across 3 accounts</text>
+      </g>
+    </g>
+
+    <!-- Step 2: Claude Interaction -->
+    <g class="anim-query" transform="translate(50, 226)">
+      <text x="0" y="0" class="c-accent bold">&gt;</text>
+      <text x="18" y="0" class="c-zinc">Refactor auth middleware to use redis token cache</text>
+      <text x="0" y="24" class="c-dim">● Thinking... reading src/auth.ts and config.ts</text>
+      <text x="0" y="44" class="c-mint">✓ Generated updated middleware (4 files modified)</text>
+    </g>
+
+    <!-- Step 3: Rate Limit Alert -->
+    <g class="anim-limit" transform="translate(50, 296)">
+      <rect x="0" y="0" width="740" height="28" rx="6" fill="#241b12" stroke="#452a12" stroke-width="1"/>
+      <text x="14" y="18" class="f-12 bold c-ochre">⚠️  Anthropic 5-hour limit reached on account 'primary'</text>
+    </g>
+
+    <!-- Step 4: Auto-Failover Transition Card -->
+    <g class="anim-failover" transform="translate(50, 334)">
+      <rect x="0" y="0" width="740" height="96" rx="8" fill="#151318" stroke="#452a12" stroke-width="1.2"/>
+      
+      <!-- Failover Tag -->
+      <path d="M 0 8 A 8 8 0 0 1 8 0 L 160 0 L 160 22 L 0 22 Z" fill="#2d1d17"/>
+      <text x="12" y="15" class="f-11 bold c-ochre">failover transition</text>
+
+      <g transform="translate(20, 42)">
+        <circle cx="4" cy="-4" r="3" fill="#6ee7b7"/>
+        <text x="18" y="0" class="c-dim">preserved session</text>
+        <text x="170" y="0" class="c-zinc">4e00c501-e0c9-4b2a...</text>
+      </g>
+
+      <g transform="translate(20, 64)">
+        <circle cx="4" cy="-4" r="3" fill="#6ee7b7"/>
+        <text x="18" y="0" class="c-dim">synchronized state</text>
+        <text x="170" y="0" class="c-zinc">.jsonl transcripts synced to account4</text>
+      </g>
+
+      <g transform="translate(20, 84)">
+        <text x="4" y="0" class="c-accent bold">→</text>
+        <text x="18" y="0" class="bold c-mint">continuing on</text>
+        <text x="170" y="0" class="bold c-zinc">account4</text>
+        <text x="245" y="0" class="c-dim">(promoted to Priority 1)</text>
+      </g>
+    </g>
+
+    <!-- Step 5: Session Resumed Cleanly -->
+    <g class="anim-resumed" transform="translate(50, 452)">
+      <text x="0" y="0" class="c-mint bold">✓ Resumed on account4 seamlessly. 100% conversation memory intact.</text>
+      <text x="0" y="24" class="c-accent bold">&gt;</text>
+      <rect x="18" y="12" width="8" height="15" fill="#a5b4fc" class="anim-cursor"/>
+    </g>
+
+  </g>
+</svg>

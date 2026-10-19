@@ -17,6 +17,12 @@
   Pool multiple Claude subscriptions into one uninterrupted coding session with automated failover, cross-account transcript synchronization, and real-time quota telemetry.
 </p>
 
+<p align="center">
+  <br />
+  <img src="https://raw.githubusercontent.com/Kbastwad19/claude-pool/main/assets/demo.svg" alt="claude-pool live failover & session continuity demonstration" width="100%" style="max-width: 840px;" />
+  <br />
+</p>
+
 </div>
 
 ---
