@@ -19,7 +19,7 @@
 
 <p align="center">
   <br />
-  <img src="https://raw.githubusercontent.com/Kbastwad19/claude-pool/main/assets/demo.svg" alt="claude-pool live failover & session continuity demonstration" width="100%" style="max-width: 840px;" />
+  <img src="assets/demo.gif" alt="claude-pool live failover & session continuity demonstration" width="100%" style="max-width: 840px; border-radius: 10px;" />
   <br />
 </p>
 
