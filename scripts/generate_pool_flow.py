@@ -2,7 +2,7 @@ import os
 import math
 from PIL import Image, ImageDraw, ImageFont
 
-def create_pool_flow_gif(output_path="assets/pool-flow.gif"):
+def create_pool_flow_gif(output_path="assets/claude-pool-architecture.gif"):
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     W, H = 840, 420
@@ -135,9 +135,6 @@ def create_pool_flow_gif(output_path="assets/pool-flow.gif"):
         d.ellipse([acc_x + 16, acc_y[2] + 18, acc_x + 24, acc_y[2] + 26], outline=c_dim, width=1)
         d.text((acc_x + 32, acc_y[2] + 15), "Account 3 (Standby P3)", font=f_body, fill=c_muted)
         d.text((acc_x + 32, acc_y[2] + 35), "Anthropic Pro Tier", font=f_mono, fill=c_dim)
-        d.rounded_rectangle([acc_x + 32, acc_y[2] + 55, acc_x + 32 + 150, acc_y[2] + 61], radius=3, fill=(35, 40, 55))
-        d.rounded_rectangle([acc_x + 32, acc_y[2] + 55, acc_x + 32 + 150, acc_y[2] + 61], radius=3, fill=c_dim)
-        d.text((acc_x + 190, acc_y[2] + 50), "100%", font=f_mono, fill=c_dim)
         d.rounded_rectangle([acc_x + 32, acc_y[2] + 55, acc_x + 32 + 150, acc_y[2] + 61], radius=3, fill=(35, 40, 55))
         d.rounded_rectangle([acc_x + 32, acc_y[2] + 55, acc_x + 32 + 150, acc_y[2] + 61], radius=3, fill=c_dim)
         d.text((acc_x + 190, acc_y[2] + 50), "100%", font=f_mono, fill=c_dim)

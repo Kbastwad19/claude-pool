@@ -19,7 +19,7 @@
 
 <p align="center">
   <br />
-  <img src="assets/pool-flow.gif" alt="claude-pool multi-account token pooling and auto-failover architecture" width="100%" style="max-width: 840px; border-radius: 10px;" />
+  <img src="assets/claude-pool-architecture.gif" alt="claude-pool multi-account token pooling and auto-failover architecture" width="100%" style="max-width: 840px; border-radius: 10px;" />
   <br />
 </p>
 
