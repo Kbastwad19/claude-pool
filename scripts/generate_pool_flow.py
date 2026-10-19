@@ -88,7 +88,7 @@ def create_pool_flow_gif(output_path="assets/pool-flow.gif"):
             d.rounded_rectangle([acc_x, acc_y[0], acc_x + acc_w, acc_y[0] + acc_h], radius=8, fill=card_active_bg, outline=card_active_border, width=1)
             d.ellipse([acc_x + 16, acc_y[0] + 18, acc_x + 24, acc_y[0] + 26], fill=c_mint)
             d.text((acc_x + 32, acc_y[0] + 15), "Account 1 (Primary)", font=f_body_bold, fill=c_zinc)
-            d.text((acc_x + 32, acc_y[0] + 35), "kbastwad@iprdgroup.com", font=f_mono, fill=c_muted)
+            d.text((acc_x + 32, acc_y[0] + 35), "work@company.com", font=f_mono, fill=c_muted)
             
             # Quota gauge decreasing
             pct = max(5, int(85 - (f / 15.0) * 75))
@@ -116,7 +116,7 @@ def create_pool_flow_gif(output_path="assets/pool-flow.gif"):
             d.ellipse([acc_x + 16, acc_y[1] + 18, acc_x + 24, acc_y[1] + 26], outline=c_dim if phase != 3 else c_accent, width=1)
             label = "Account 2 (Standby P2)" if phase != 3 else "Account 2 (Promoting...)"
             d.text((acc_x + 32, acc_y[1] + 15), label, font=f_body_bold, fill=c_zinc if phase == 3 else c_muted)
-            d.text((acc_x + 32, acc_y[1] + 35), "mshanbhag@iprdgroup.com", font=f_mono, fill=c_dim)
+            d.text((acc_x + 32, acc_y[1] + 35), "personal@gmail.com", font=f_mono, fill=c_dim)
             d.rounded_rectangle([acc_x + 32, acc_y[1] + 55, acc_x + 32 + 150, acc_y[1] + 61], radius=3, fill=(35, 40, 55))
             d.rounded_rectangle([acc_x + 32, acc_y[1] + 55, acc_x + 32 + 150, acc_y[1] + 61], radius=3, fill=c_accent if phase == 3 else c_dim)
             d.text((acc_x + 190, acc_y[1] + 50), "100%", font=f_mono, fill=c_dim)
