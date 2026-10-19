@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { ConfigManager } from './config.js';
-import { colors, printTable, makePill } from './ui.js';
+import { colors, printTable, makePill, renderPanel } from './ui.js';
 
 export function checkClaudeCliInstalled() {
   try {
@@ -108,11 +108,13 @@ export async function runSetupWizard() {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
   console.log();
-  console.log(colors.indigo + colors.bold + '╭─ claude-pool setup ' + '─'.repeat(45) + '╮' + colors.reset);
-  console.log(colors.border + '│' + colors.reset + `  ${colors.bold}Welcome to Claude Pool Setup Wizard${colors.reset}`);
-  console.log(colors.border + '│' + colors.reset + `  Connect multiple Claude subscriptions into one unified token pool.`);
-  console.log(colors.border + '│' + colors.reset + `  ${colors.terracotta}Automatic failover · Continuous session memory · Live token metrics${colors.reset}`);
-  console.log(colors.indigo + colors.bold + '╰' + '─'.repeat(66) + '╯' + colors.reset);
+  renderPanel('claude-pool setup', [
+    null,
+    `${colors.bold}Claude Pool Interactive Setup${colors.reset}`,
+    `${colors.muted}Connect multiple Claude subscriptions into one unified token pool.${colors.reset}`,
+    `${colors.dimmed}Automatic failover · Continuous session memory · Live token metrics${colors.reset}`,
+    null,
+  ], { width: 72 });
   console.log();
 
   if (!checkClaudeCliInstalled()) {

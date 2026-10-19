@@ -5,7 +5,7 @@ import { MetricsEngine } from '../src/metrics.js';
 import { QuotaEngine } from '../src/quota.js';
 import { ProcessRunner } from '../src/runner.js';
 import { runSetupWizard, checkAuthStatus, runAccountLogin, ensureAllSlashCommands } from '../src/setup.js';
-import { colors, formatTokenCount, makePill, makeGauge, printTable } from '../src/ui.js';
+import { colors, formatTokenCount, makePill, makeGauge, printTable, renderPanel } from '../src/ui.js';
 
 const KNOWN_COMMANDS = new Set([
   'start',
@@ -143,34 +143,32 @@ async function handleCommand() {
     case 'limits':
     case 'remaining':
     case 'quota': {
-      console.log(`\n${colors.indigo}Querying live Claude usage quotas & reset countdowns...${colors.reset}`);
+      console.log(`\n${colors.dimmed}Fetching live Claude quota & countdown metrics...${colors.reset}`);
       const accounts = cfg.loadAccounts();
       const force = args.includes('-r') || args.includes('--refresh');
       QuotaEngine.fetchAllQuotas(accounts, force);
 
       const headers = [
-        { label: 'Rank', align: 'center' },
         { label: 'Priority', align: 'center' },
         { label: 'Account' },
-        { label: 'Status', align: 'center' },
-        { label: 'Session Remaining' },
-        { label: 'Session Resets At' },
-        { label: 'Weekly Remaining' },
-        { label: 'Weekly Resets At' },
+        { label: 'Status' },
+        { label: 'Session Quota' },
+        { label: 'Session Resets' },
+        { label: 'Weekly Quota' },
+        { label: 'Weekly Resets' },
       ];
 
       const rows = accounts.map((a, i) => [
-        i === 0 ? '#1' : `#${i + 1}`,
         `P${a.priority}`,
         a.name,
         makePill(i === 0 ? 'active' : 'standby'),
-        a.quota ? makeGauge(a.quota.sessionRemainingPct) : `${colors.dim}—${colors.reset}`,
-        a.quota?.sessionReset || '—',
-        a.quota ? makeGauge(a.quota.weekRemainingPct) : `${colors.dim}—${colors.reset}`,
-        a.quota?.weekReset || '—',
+        a.quota ? makeGauge(a.quota.sessionRemainingPct) : `${colors.dimmed}—${colors.reset}`,
+        a.quota?.sessionReset || `${colors.dimmed}—${colors.reset}`,
+        a.quota ? makeGauge(a.quota.weekRemainingPct) : `${colors.dimmed}—${colors.reset}`,
+        a.quota?.weekReset || `${colors.dimmed}—${colors.reset}`,
       ]);
 
-      console.log(`\n${colors.indigo}${colors.bold}Pool Quota & Remaining Usage${colors.reset}`);
+      console.log();
       printTable(headers, rows);
       console.log();
       break;
@@ -182,16 +180,18 @@ async function handleCommand() {
       QuotaEngine.fetchAllQuotas(accounts, false);
 
       console.log();
-      console.log(colors.border + '┌─ ' + colors.indigo + colors.bold + 'Token Pool Dashboard' + colors.border + ' ─'.repeat(45) + '┐' + colors.reset);
-      console.log(colors.border + '│' + colors.reset + `  Today's Pool: ${colors.emerald}${colors.bold}${formatTokenCount(stats.todayPoolTokens)}${colors.reset} │ Output: ${colors.terracotta}${formatTokenCount(stats.todayPoolOutput)}${colors.reset} │ Cache: ${colors.indigo}${formatTokenCount(stats.todayPoolCache)}${colors.reset} │ Lifetime: ${colors.bold}${formatTokenCount(stats.lifetimePoolCache + stats.lifetimePoolOutput)}${colors.reset}`);
-      console.log(colors.border + '└' + '─'.repeat(68) + '┘' + colors.reset);
+      renderPanel('token pool dashboard', [
+        null,
+        `Today: ${colors.mint}${colors.bold}${formatTokenCount(stats.todayPoolTokens)}${colors.reset} ${colors.dimmed}(${formatTokenCount(stats.todayPoolOutput)} out · ${formatTokenCount(stats.todayPoolCache)} cache)${colors.reset}   Lifetime: ${colors.bold}${formatTokenCount(stats.lifetimePoolCache + stats.lifetimePoolOutput)}${colors.reset}`,
+        null,
+      ], { width: 72 });
       console.log();
 
       const headers = [
         { label: 'Priority', align: 'center' },
         { label: 'Account' },
-        { label: 'Status', align: 'center' },
-        { label: 'Remaining Quota' },
+        { label: 'Status' },
+        { label: 'Session Quota' },
         { label: "Today's Tokens", align: 'right' },
         { label: 'Model Breakdown (Today)' },
         { label: 'Sessions', align: 'center' },
@@ -207,15 +207,15 @@ async function handleCommand() {
           `P${acct.priority}`,
           s.accountName,
           makePill(i === 0 ? 'active' : 'standby'),
-          acct.quota ? makeGauge(acct.quota.sessionRemainingPct, 8) : `${colors.dim}—${colors.reset}`,
+          acct.quota ? makeGauge(acct.quota.sessionRemainingPct, 8) : `${colors.dimmed}—${colors.reset}`,
           `${colors.bold}${formatTokenCount(s.todayTotalTokens)}${colors.reset}`,
-          `${colors.slate}${bdown}${colors.reset}`,
+          `${colors.muted}${bdown}${colors.reset}`,
           String(s.totalSessions),
         ];
       });
 
       printTable(headers, rows);
-      console.log(`${colors.dim}Tip: Run ${colors.reset}${colors.indigo}claude-pool limits${colors.reset}${colors.dim} to inspect reset countdowns & weekly quotas.${colors.reset}\n`);
+      console.log(`${colors.dimmed}Tip: Run ${colors.accent}claude-pool limits${colors.reset}${colors.dimmed} to inspect reset countdowns & weekly quotas.${colors.reset}\n`);
       break;
     }
 
@@ -272,22 +272,20 @@ async function handleCommand() {
     case 'priority': {
       const accounts = cfg.loadAccounts();
       const headers = [
-        { label: 'Rank', align: 'center' },
         { label: 'Priority', align: 'center' },
         { label: 'Account' },
-        { label: 'Status', align: 'center' },
+        { label: 'Status' },
         { label: 'Email' },
         { label: 'Config Directory' },
       ];
       const rows = accounts.map((a, i) => [
-        i === 0 ? '#1' : `#${i + 1}`,
         `P${a.priority}`,
         a.name,
         makePill(i === 0 ? 'active' : 'standby'),
-        a.email || '—',
+        a.email || `${colors.dimmed}—${colors.reset}`,
         a.configDir,
       ]);
-      console.log(`\n${colors.indigo}${colors.bold}Account Priority Ranking${colors.reset}`);
+      console.log(`\n${colors.accent}${colors.bold}Account Priority Order${colors.reset}`);
       printTable(headers, rows);
       console.log();
       break;
@@ -297,13 +295,13 @@ async function handleCommand() {
       const name = args[1];
       const prio = parseInt(args[2], 10);
       if (!name || isNaN(prio)) {
-        console.log(`${colors.red}Usage: claude-pool set-priority <account_name> <priority_number>${colors.reset}`);
+        console.log(`${colors.rose}Usage: claude-pool set-priority <account_name> <priority_number>${colors.reset}`);
         return;
       }
       if (cfg.updateAccountPriority(name, prio)) {
-        console.log(`${colors.emerald}✓ Priority for '${name}' set to P${prio}.${colors.reset}`);
+        console.log(`${colors.mint}✓ Priority for '${name}' set to P${prio}.${colors.reset}`);
       } else {
-        console.log(`${colors.red}Error: Account '${name}' not found.${colors.reset}`);
+        console.log(`${colors.rose}Error: Account '${name}' not found.${colors.reset}`);
       }
       break;
     }
@@ -312,30 +310,29 @@ async function handleCommand() {
     case 'accounts': {
       const accounts = cfg.loadAccounts();
       const headers = [
-        { label: 'Rank', align: 'center' },
         { label: 'Priority', align: 'center' },
         { label: 'Account' },
-        { label: 'Status', align: 'center' },
+        { label: 'Status' },
         { label: 'Email' },
         { label: 'Plan' },
         { label: 'Config Directory' },
       ];
       const rows = accounts.map((a, i) => [
-        i === 0 ? '#1' : `#${i + 1}`,
         `P${a.priority}`,
         a.name,
         makePill(i === 0 ? 'active' : 'standby'),
-        a.email || '—',
-        a.subscriptionType || '—',
+        a.email || `${colors.dimmed}—${colors.reset}`,
+        a.subscriptionType || `${colors.dimmed}—${colors.reset}`,
         a.configDir,
       ]);
+      console.log();
       printTable(headers, rows);
       console.log();
       break;
     }
 
     case 'check-auth': {
-      console.log(`\n${colors.indigo}Checking live authentication status across all accounts...${colors.reset}`);
+      console.log(`\n${colors.dimmed}Checking authentication across all accounts...${colors.reset}`);
       const accounts = cfg.loadAccounts();
       for (const a of accounts) {
         const st = checkAuthStatus(a.configDir);
@@ -343,23 +340,21 @@ async function handleCommand() {
         a.subscriptionType = st.plan;
       }
       cfg.saveAccounts(accounts);
-      console.log(`${colors.emerald}✓ Authentication check complete.${colors.reset}\n`);
+      console.log(`${colors.mint}✓ Authentication check complete.${colors.reset}\n`);
 
       const headers = [
-        { label: 'Rank', align: 'center' },
         { label: 'Priority', align: 'center' },
         { label: 'Account' },
-        { label: 'Status', align: 'center' },
+        { label: 'Status' },
         { label: 'Email' },
         { label: 'Plan' },
       ];
       const rows = accounts.map((a, i) => [
-        i === 0 ? '#1' : `#${i + 1}`,
         `P${a.priority}`,
         a.name,
         makePill(a.email ? (i === 0 ? 'active' : 'standby') : 'auth_expired'),
-        a.email || '—',
-        a.subscriptionType || '—',
+        a.email || `${colors.dimmed}—${colors.reset}`,
+        a.subscriptionType || `${colors.dimmed}—${colors.reset}`,
       ]);
       printTable(headers, rows);
       console.log();
